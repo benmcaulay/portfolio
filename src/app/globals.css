@@ -1,0 +1,176 @@
+@import "tailwindcss";
+
+@theme {
+  /* Type */
+  --font-sans: var(--font-inter-tight), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-instrument-serif), ui-serif, Georgia, "Times New Roman", serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, "SF Mono", Menlo, monospace;
+  --font-kinetic: var(--font-anton), "Arial Narrow", Impact, sans-serif;
+
+  /* The entire palette. Black, white, and the ramp between them. */
+  --color-ink: #000000;
+  --color-paper: #ffffff;
+  --color-g-950: #050505;
+  --color-g-900: #0d0d0d;
+  --color-g-800: #1a1a1a;
+  --color-g-700: #2b2b2b;
+  --color-g-600: #444444;
+  --color-g-500: #6b6b6b;
+  --color-g-400: #949494;
+  --color-g-300: #bcbcbc;
+  --color-g-200: #d8d8d8;
+  --color-g-100: #ececec;
+  --color-g-50: #f6f6f6;
+
+  /* Motion */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quint: cubic-bezier(0.83, 0, 0.17, 1);
+}
+
+:root {
+  --hairline: 1px;
+  --gutter: clamp(1.125rem, 4vw, 4.5rem);
+  --rule: color-mix(in srgb, currentColor 18%, transparent);
+  --rule-strong: color-mix(in srgb, currentColor 38%, transparent);
+}
+
+* {
+  /* Every variant draws its own rules from currentColor, so no colored default. */
+  border-color: var(--rule);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: auto;
+  /*
+   * Several variants push type and belts deliberately past the viewport edge.
+   * Clipping on html as well as body is what actually stops the document from
+   * scrolling sideways; body alone leaves the root scrollable.
+   */
+  overflow-x: clip;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+}
+
+::selection {
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+
+.on-ink ::selection,
+.on-ink::selection {
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+/* Lenis */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* Focus that survives a monochrome palette. */
+:where(a, button, [tabindex]):focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+  border-radius: 1px;
+}
+
+/* ---------- Shared primitives ---------- */
+
+.gutter {
+  padding-inline: var(--gutter);
+}
+
+.hairline {
+  border-top: var(--hairline) solid var(--rule);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/*
+ * A grain field. Pure luminance noise, so it stays inside the palette.
+ *
+ * Deliberately not using mix-blend-mode: a fixed full-viewport blended layer
+ * pulls the whole document into one compositing group, which on these very tall
+ * pages costs enough paint time to stall the main thread. A flat low-opacity
+ * overlay is visually equivalent in a two-tone palette and composites free.
+ */
+.grain::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.028;
+  will-change: transform;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.on-ink.grain::after {
+  opacity: 0.05;
+}
+
+/* Blend-mode cursor and overlays: anything that inverts what is under it. */
+.invert-blend {
+  mix-blend-mode: difference;
+}
+
+/* Clip text to its own box so per-line reveals have something to slide behind. */
+.line-clip {
+  display: block;
+  overflow: hidden;
+  clip-path: inset(-2% -2% -2% -2%);
+}
+
+/* Optical alignment for very large display type. */
+.optical {
+  letter-spacing: -0.045em;
+  line-height: 0.86;
+  text-wrap: balance;
+}
+
+.hang {
+  /* Pull punctuation and caps out to the margin. */
+  margin-left: -0.06em;
+}
+
+/*
+ * Without JavaScript there is nothing to run the entrance animations, and
+ * anything staged at opacity 0 or pushed outside a clipping parent would stay
+ * invisible forever. Reset the staging so the page still reads as a document.
+ */
+.no-motion [style*="opacity"],
+.no-motion [style*="translate"],
+.no-motion .line-clip > * {
+  opacity: 1 !important;
+  transform: none !important;
+  filter: none !important;
+  clip-path: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
