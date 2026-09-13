@@ -8,11 +8,19 @@ import {
   useTransform,
 } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import { experience, featuredProjects, profile, variantBySlug } from "@/content";
+import {
+  affiliations,
+  experience,
+  featuredProjects,
+  leadership,
+  profile,
+  variantBySlug,
+} from "@/content";
 import SmoothScroll from "@/components/SmoothScroll";
 import VariantSwitcher from "@/components/chrome/VariantSwitcher";
 import Counter from "@/components/motion/Counter";
 import ProjectArt from "@/components/ProjectArt";
+import BrandMark from "@/components/BrandMark";
 import { onceInView } from "@/lib/motion";
 
 const meta = variantBySlug("terminal")!;
@@ -22,6 +30,7 @@ const SECTIONS = [
   { id: "whoami", label: "whoami" },
   { id: "metrics", label: "metrics" },
   { id: "work", label: "work" },
+  { id: "leadership", label: "leadership" },
   { id: "projects", label: "projects" },
   { id: "stack", label: "stack" },
   { id: "contact", label: "contact" },
@@ -47,6 +56,7 @@ export default function TerminalPage() {
       <Whoami />
       <Metrics />
       <Work />
+      <Leadership />
       <Projects />
       <Stack />
       <Contact />
@@ -330,8 +340,9 @@ function Work() {
     <Block id="work" cmd="git log --author=mcaulay">
       <ol className="space-y-0">
         {experience.map((role, i) => (
-          <li key={role.id} className="border-t border-paper/25 last:border-b">
-            <div className="grid grid-cols-12 gap-x-6 gap-y-4 py-7">
+          <li key={role.id} className="relative overflow-hidden border-t border-paper/25 last:border-b">
+            <BrandMark mark={role.mark} opacity={0.13} />
+            <div className="relative grid grid-cols-12 gap-x-6 gap-y-4 py-7">
               <div className="col-span-12 md:col-span-4">
                 <p className="tabular text-[10px] tracking-[0.1em] uppercase opacity-45">
                   commit {String(i + 1).padStart(2, "0")} / {role.start} &rarr; {role.end}
@@ -366,6 +377,75 @@ function Work() {
                   </motion.li>
                 ))}
               </ul>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </Block>
+  );
+}
+
+/* ------------------------------------------------------------------ leadership */
+
+function Leadership() {
+  return (
+    <Block id="leadership" cmd="cat ./leadership.txt">
+      <ol className="space-y-0">
+        {leadership.map((role, i) => (
+          <li key={role.id} className="border-t border-paper/25 last:border-b">
+            <div className="grid grid-cols-12 gap-x-6 gap-y-3 py-6">
+              <div className="col-span-12 md:col-span-4">
+                <p className="tabular text-[10px] tracking-[0.1em] uppercase opacity-45">
+                  {String(i + 1).padStart(2, "0")} / {role.start} &rarr; {role.end}
+                  {role.current && <span className="ml-2 opacity-100">[current]</span>}
+                </p>
+                <h3 className="mt-2 text-[0.9375rem] leading-tight font-bold uppercase">
+                  {role.title}
+                </h3>
+                <p className="mt-1 text-[10px] tracking-[0.08em] uppercase opacity-45">
+                  {role.org}
+                  {role.place && <span> / {role.place}</span>}
+                </p>
+              </div>
+
+              <div className="col-span-12 md:col-span-8">
+                <p className="max-w-[80ch] text-[0.8125rem] leading-[1.8] opacity-85">
+                  {role.summary}
+                </p>
+
+                {role.figures && (
+                  <dl className="mt-4 grid grid-cols-2 gap-px bg-paper/25 sm:grid-cols-4">
+                    {role.figures.map((f) => (
+                      <div key={f.label} className="bg-ink p-3">
+                        <dt className="tabular text-[clamp(1.125rem,2.4vw,1.625rem)] leading-none font-bold">
+                          <Counter to={f.value} prefix={f.prefix ?? ""} suffix={f.suffix ?? ""} />
+                        </dt>
+                        <dd className="mt-2 text-[10px] leading-snug tracking-[0.06em] uppercase opacity-45">
+                          {f.label}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                )}
+
+                {role.detail && (
+                  <ul className="mt-4 space-y-2">
+                    {role.detail.map((d, di) => (
+                      <motion.li
+                        key={di}
+                        initial={{ opacity: 0, x: -10 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={onceInView}
+                        transition={{ duration: 0.5, delay: di * 0.06 }}
+                        className="flex gap-3 text-[0.8125rem] leading-[1.8]"
+                      >
+                        <span className="shrink-0 opacity-40">+</span>
+                        <span className="max-w-[80ch] opacity-75">{d}</span>
+                      </motion.li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
           </li>
         ))}
@@ -507,24 +587,46 @@ function Stack() {
             ))}
           </ul>
         </div>
-        <div className="col-span-12 lg:col-span-4 lg:col-start-9">
-          <p className="text-[10px] tracking-[0.1em] uppercase opacity-45">./education</p>
-          <p className="mt-3 text-lg font-bold uppercase">{profile.education.school}</p>
-          <p className="text-[0.8125rem] opacity-75">
+        <div className="relative col-span-12 overflow-hidden lg:col-span-4 lg:col-start-9">
+          <BrandMark mark="stanford" opacity={0.12} />
+          <p className="relative text-[10px] tracking-[0.1em] uppercase opacity-45">./education</p>
+          <p className="relative mt-3 text-lg font-bold uppercase">{profile.education.school}</p>
+          <p className="relative text-[0.8125rem] opacity-75">
             {profile.education.degrees.map((d) => d.label).join(" / ")}
           </p>
-          <p className="tabular mt-1 text-[10px] tracking-[0.08em] uppercase opacity-45">
+          <p className="tabular relative mt-1 text-[10px] tracking-[0.08em] uppercase opacity-45">
             gpa {profile.education.gpa} / grad {profile.education.graduation}
           </p>
           <AsciiRule className="my-5" char="-" />
-          <ul className="space-y-2 text-[0.8125rem] opacity-80">
-            {profile.education.involvement.map((it) => (
-              <li key={it} className="flex gap-2">
-                <span className="opacity-40">*</span>
-                <span>{it}</span>
+          <p className="relative text-[10px] tracking-[0.1em] uppercase opacity-45">
+            ./coursework
+          </p>
+          <ul className="relative mt-2 space-y-1 text-[0.8125rem] opacity-80">
+            {profile.education.coursework.map((c) => (
+              <li key={c.code} className="flex gap-2">
+                <span className="tabular w-[5.5rem] shrink-0 opacity-45">{c.code}</span>
+                <span>
+                  {c.title}
+                  {c.note && <span className="block text-[10px] opacity-55">{c.note}</span>}
+                </span>
               </li>
             ))}
           </ul>
+          <AsciiRule className="my-5" char="-" />
+          <p className="relative text-[10px] tracking-[0.1em] uppercase opacity-45">
+            ./in-progress {profile.education.inProgressTerm.toLowerCase()}
+          </p>
+          <ul className="relative mt-2 space-y-1 text-[0.8125rem] opacity-80">
+            {profile.education.inProgress.map((c) => (
+              <li key={c.code} className="flex gap-2">
+                <span className="tabular w-[5.5rem] shrink-0 opacity-45">{c.code}</span>
+                <span>{c.title}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="relative mt-6 text-[10px] leading-relaxed tracking-[0.08em] uppercase opacity-45">
+            {affiliations.join(", ")}
+          </p>
         </div>
       </div>
     </Block>

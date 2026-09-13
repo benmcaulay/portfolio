@@ -2,13 +2,21 @@
 
 import { motion, useScroll, useTransform } from "motion/react";
 import { useRef } from "react";
-import { experience, featuredProjects, profile, variantBySlug } from "@/content";
+import {
+  affiliations,
+  experience,
+  featuredProjects,
+  leadership,
+  profile,
+  variantBySlug,
+} from "@/content";
 import Reveal from "@/components/motion/Reveal";
 import LineMask from "@/components/motion/LineMask";
 import DrawRule from "@/components/motion/DrawRule";
 import Counter from "@/components/motion/Counter";
 import ScrollProgress from "@/components/motion/ScrollProgress";
 import ProjectArt from "@/components/ProjectArt";
+import BrandMark from "@/components/BrandMark";
 import SmoothScroll from "@/components/SmoothScroll";
 import VariantSwitcher from "@/components/chrome/VariantSwitcher";
 import { expo } from "@/lib/motion";
@@ -25,6 +33,7 @@ export default function EditorialPage() {
       <Statement />
       <Ledger />
       <Work />
+      <Leadership />
       <Projects />
       <Apparatus />
       <Colophon />
@@ -201,9 +210,10 @@ function Work() {
     <Section label="Experience" index="III">
       <ol>
         {experience.map((role, i) => (
-          <li key={role.id} className="group">
+          <li key={role.id} className="group relative">
+            <BrandMark mark={role.mark} />
             <DrawRule className="mb-7" duration={1} />
-            <div className="grid grid-cols-12 gap-x-6 gap-y-5 pb-14">
+            <div className="relative grid grid-cols-12 gap-x-6 gap-y-5 pb-14">
               <div className="col-span-12 sm:col-span-4">
                 <Reveal delay={0.04}>
                   <p className="font-mono text-[10px] tracking-[0.14em] uppercase opacity-45">
@@ -257,11 +267,96 @@ function Work() {
   );
 }
 
+/* ------------------------------------------------------------------ leadership */
+
+function Leadership() {
+  return (
+    <Section label="Leadership" index="IV">
+      <ol>
+        {leadership.map((role, i) => (
+          <li key={role.id}>
+            <DrawRule className="mb-6" duration={0.9} />
+            <div className="grid grid-cols-12 gap-x-6 gap-y-4 pb-11">
+              <div className="col-span-12 sm:col-span-4">
+                <Reveal delay={0.04}>
+                  <p className="font-mono text-[10px] tracking-[0.14em] uppercase opacity-45">
+                    <span className="tabular">{String(i + 1).padStart(2, "0")}</span>
+                    <span className="mx-2">/</span>
+                    {role.start} &rarr; {role.end}
+                    {role.current && <span className="ml-2 opacity-100">Current</span>}
+                  </p>
+                  <h3 className="mt-3 font-display text-[clamp(1.25rem,2.4vw,1.875rem)] leading-[1.1] text-balance">
+                    {role.title}
+                  </h3>
+                  <p className="mt-2 font-mono text-[10px] tracking-[0.12em] uppercase opacity-45">
+                    {role.org}
+                    {role.place && <span> / {role.place}</span>}
+                  </p>
+                </Reveal>
+              </div>
+
+              <div className="col-span-12 sm:col-span-7 sm:col-start-6">
+                <Reveal delay={0.1}>
+                  <p className="max-w-[54ch] text-base leading-snug text-pretty sm:text-lg">
+                    {role.summary}
+                  </p>
+                </Reveal>
+
+                {role.figures && (
+                  <ul className="mt-6 grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-4">
+                    {role.figures.map((f, fi) => (
+                      <Reveal as="li" key={f.label} delay={0.14 + fi * 0.05} y={14}>
+                        <span className="block border-t border-ink/15 pt-3">
+                          <span className="block font-display text-[clamp(1.5rem,3vw,2.25rem)] leading-none">
+                            <Counter to={f.value} prefix={f.prefix ?? ""} suffix={f.suffix ?? ""} />
+                          </span>
+                          <span className="mt-2 block font-mono text-[10px] leading-snug tracking-[0.1em] uppercase opacity-50">
+                            {f.label}
+                          </span>
+                        </span>
+                      </Reveal>
+                    ))}
+                  </ul>
+                )}
+
+                {role.detail && (
+                  <ul className="mt-6 space-y-3">
+                    {role.detail.map((d, di) => (
+                      <Reveal as="li" key={di} delay={0.18 + di * 0.05} y={14}>
+                        <span className="flex gap-4">
+                          <span className="tabular mt-[0.4em] shrink-0 font-mono text-[9px] opacity-35">
+                            {String(di + 1).padStart(2, "0")}
+                          </span>
+                          <span className="max-w-[64ch] text-[0.9375rem] leading-relaxed opacity-80">
+                            {d}
+                          </span>
+                        </span>
+                      </Reveal>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+          </li>
+        ))}
+      </ol>
+
+      <DrawRule className="mb-5" duration={0.9} />
+      <Reveal>
+        <p className="font-mono text-[10px] tracking-[0.14em] uppercase opacity-45">
+          Also a member of
+        </p>
+        <p className="mt-2 text-base">{affiliations.join(", ")}</p>
+      </Reveal>
+    </Section>
+  );
+}
+
 /* -------------------------------------------------------------------- projects */
 
 function Projects() {
   return (
-    <Section label="Selected work" index="IV">
+    <Section label="Selected work" index="V">
       <ol className="space-y-24">
         {featuredProjects.map((p) => (
           <li key={p.id}>
@@ -362,7 +457,7 @@ function Projects() {
 
 function Apparatus() {
   return (
-    <Section label="Apparatus" index="V">
+    <Section label="Apparatus" index="VI">
       <div className="grid grid-cols-12 gap-x-6 gap-y-12">
         <div className="col-span-12 lg:col-span-7">
           <ul className="space-y-10">
@@ -382,7 +477,8 @@ function Apparatus() {
           </ul>
         </div>
 
-        <div className="col-span-12 lg:col-span-4 lg:col-start-9">
+        <div className="relative col-span-12 lg:col-span-4 lg:col-start-9">
+          <BrandMark mark="stanford" />
           <DrawRule className="mb-4" duration={0.8} />
           <Reveal>
             <h3 className="font-mono text-[10px] tracking-[0.16em] uppercase opacity-45">
@@ -402,10 +498,37 @@ function Apparatus() {
             <p className="mt-2 font-mono text-[10px] tracking-[0.12em] uppercase opacity-45">
               GPA {profile.education.gpa} / Graduating {profile.education.graduation}
             </p>
-            <ul className="mt-8 space-y-2 border-t border-ink/15 pt-5 text-[0.875rem] leading-snug opacity-80">
-              {profile.education.involvement.map((it) => (
-                <Reveal as="li" key={it} y={14}>
-                  {it}
+            <p className="mt-8 border-t border-ink/15 pt-5 font-mono text-[10px] tracking-[0.16em] uppercase opacity-45">
+              Selected coursework
+            </p>
+            <ul className="mt-3 space-y-1.5 text-[0.875rem] leading-snug opacity-80">
+              {profile.education.coursework.map((c) => (
+                <Reveal as="li" key={c.code} y={12}>
+                  <span className="flex gap-3">
+                    <span className="tabular w-[6.5rem] shrink-0 font-mono text-[10px] tracking-[0.08em] uppercase opacity-50">
+                      {c.code}
+                    </span>
+                    <span>
+                      {c.title}
+                      {c.note && <span className="block opacity-50">{c.note}</span>}
+                    </span>
+                  </span>
+                </Reveal>
+              ))}
+            </ul>
+
+            <p className="mt-8 border-t border-ink/15 pt-5 font-mono text-[10px] tracking-[0.16em] uppercase opacity-45">
+              In progress, {profile.education.inProgressTerm}
+            </p>
+            <ul className="mt-3 space-y-1.5 text-[0.875rem] leading-snug opacity-80">
+              {profile.education.inProgress.map((c) => (
+                <Reveal as="li" key={c.code} y={12}>
+                  <span className="flex gap-3">
+                    <span className="tabular w-[6.5rem] shrink-0 font-mono text-[10px] tracking-[0.08em] uppercase opacity-50">
+                      {c.code}
+                    </span>
+                    <span>{c.title}</span>
+                  </span>
                 </Reveal>
               ))}
             </ul>

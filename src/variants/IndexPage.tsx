@@ -78,9 +78,9 @@ function Cover() {
         <div className="grid grid-cols-12 gap-x-6 gap-y-6">
           <Reveal delay={0.6} className="col-span-12 md:col-span-5">
             <p className="max-w-[44ch] text-lg leading-snug text-pretty sm:text-xl">
-              The same resume, the same work, four different arguments about how a portfolio should
-              move. Black and white throughout, because color is a crutch when the typography has
-              to carry it.
+              The same work, the same numbers, four different arguments about how a portfolio
+              should move. Black and white throughout, because color is a crutch when the
+              typography has to carry it.
             </p>
           </Reveal>
           <Reveal delay={0.7} className="col-span-12 md:col-span-3 md:col-start-7">

@@ -16,11 +16,18 @@ type Props = {
 /**
  * Counts up once, on entry, in tabular figures so the box never reflows.
  *
- * The displayed number stays at the true target until the animation actually
- * produces a frame. These are figures off a resume, and a frame loop that never
- * runs (a tab loaded in the background, a throttled renderer, no JavaScript at
- * all) must not leave a wrong number on screen. It also means the correct value
- * is what gets server rendered.
+ * These are figures off a resume, so the count-up is never allowed to leave a
+ * wrong number on screen. Two guards, because the animation can stall rather
+ * than simply not start:
+ *
+ *  1. The target is what renders until the animation reports progress, so a
+ *     frame loop that never runs (no JavaScript, reduced motion) shows the real
+ *     value, and that is also what gets server rendered.
+ *  2. A timer snaps to the target if the animation has not finished slightly
+ *     after it should have. `animate` emits its first value immediately and
+ *     then depends on requestAnimationFrame, which a browser freezes entirely
+ *     in a background tab. Without this the display would stick on the first
+ *     frame, reading 81 where it should read 1,900.
  */
 export default function Counter({
   to,
@@ -39,20 +46,47 @@ export default function Counter({
 
   useEffect(() => {
     if (!inView || reduced) return;
+
+    let settled = false;
     const controls = animate(from, to, {
       duration,
       ease: [0.16, 1, 0.3, 1],
-      onUpdate: (v) => setAnimated(v),
+      onUpdate: (v) => {
+        if (!settled) setAnimated(v);
+      },
+      onComplete: () => {
+        settled = true;
+        setAnimated(null);
+      },
     });
-    return () => controls.stop();
+
+    const guard = window.setTimeout(
+      () => {
+        settled = true;
+        controls.stop();
+        setAnimated(null);
+      },
+      duration * 1000 + 500,
+    );
+
+    return () => {
+      window.clearTimeout(guard);
+      controls.stop();
+    };
   }, [inView, reduced, from, to, duration]);
 
   const value = animated ?? to;
 
+  /* Group thousands, so a seat count reads 1,900 rather than 1900. */
+  const shown = value.toLocaleString("en-US", {
+    minimumFractionDigits: places,
+    maximumFractionDigits: places,
+  });
+
   return (
     <span ref={ref} className={`tabular ${className ?? ""}`}>
       {prefix}
-      {value.toFixed(places)}
+      {shown}
       {suffix}
     </span>
   );

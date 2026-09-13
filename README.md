@@ -34,14 +34,41 @@ version to `/` while leaving all four at `/v/<slug>`.
 
 All copy lives in `src/content` and nothing is hardcoded into a layout:
 
-- `profile.ts` name, intro, the metric counters, skills, education
+- `profile.ts` name, intro, the metric counters, skills, education, coursework
 - `experience.ts` roles, with both a one-line summary and full bullets so
   different versions can pitch at different densities
+- `leadership.ts` leadership roles, with their own inline figures
 - `projects.ts` per project blurb, long body, a facts table, stack and links
 - `variants.ts` the four design directions, used by the index page
+- `marks.ts` placement for the large background logos
 - `site.ts` which version answers `/`
 
 Editing a number in `profile.ts` updates it in all four versions.
+
+## Background logos
+
+Employer and school marks run very large and very quiet behind the sections
+they belong to. They are never used as images: each one is a PNG whose alpha
+channel carries the shape, applied as a CSS mask over a `currentColor` fill, so
+a mark inherits ink or paper from whichever version is rendering it and the
+palette stays at two tones.
+
+To add or replace one, drop the original file into `assets/logos` and run:
+
+```bash
+npm run marks
+```
+
+Colour and a white background are both fine. White and near-white become fully
+transparent, mid-tone brand colours are lifted so they read as solid shape
+rather than a half-transparent ghost, and each mask is cropped tight to its
+artwork. See [`assets/logos/README.md`](assets/logos/README.md) for the
+filename to key mapping.
+
+Nothing renders until the mask file exists. `npm run marks` rewrites
+`src/content/marks.generated.ts` with the list of masks actually present, and
+`BrandMark` returns null for anything not on it, because a CSS mask whose image
+fails to load is ignored by the browser and would paint a solid block.
 
 ## Design constraints
 
@@ -57,11 +84,15 @@ A few decisions worth knowing about:
 - **`overflow-x: clip` sits on `html`, not just `body`.** Several versions push
   belts and display type past the viewport edge on purpose. Clipping `body`
   alone leaves the root scrollable, which shows up as a sideways drag on touch.
-- **Counters show their true value until the frame loop produces a frame.**
-  These are figures off a resume. A tab loaded in the background, a throttled
-  renderer or no JavaScript at all must not leave a wrong number on screen, so
-  the target is what renders first and the count-up only takes over once it is
-  actually running.
+- **Counters can never display a wrong number.** These are figures off a
+  resume, so the count-up has two guards. The target renders until the
+  animation reports progress, which covers no JavaScript and reduced motion and
+  is also what gets server rendered. A timer then snaps to the target if the
+  animation has not finished when it should have, which covers the stall case:
+  `animate` emits its first value immediately and then depends on
+  `requestAnimationFrame`, which a browser freezes outright in a background
+  tab. Without the second guard a figure sticks on its first frame and reads
+  81 where it should read 1,900.
 - **Entrance staging is behind a `no-motion` class** that a blocking inline
   script removes before first paint. Without JavaScript the page still reads as
   a document instead of a blank sheet, since anything staged at `opacity: 0` or

@@ -8,7 +8,14 @@ import {
   type MotionValue,
 } from "motion/react";
 import { useRef } from "react";
-import { experience, featuredProjects, profile, variantBySlug } from "@/content";
+import {
+  affiliations,
+  experience,
+  featuredProjects,
+  leadership,
+  profile,
+  variantBySlug,
+} from "@/content";
 import SmoothScroll from "@/components/SmoothScroll";
 import VariantSwitcher from "@/components/chrome/VariantSwitcher";
 import StickyStage from "@/components/motion/StickyStage";
@@ -16,6 +23,7 @@ import Counter from "@/components/motion/Counter";
 import Reveal from "@/components/motion/Reveal";
 import LineMask from "@/components/motion/LineMask";
 import ProjectArt from "@/components/ProjectArt";
+import BrandMark from "@/components/BrandMark";
 import { expo, onceInView } from "@/lib/motion";
 
 const meta = variantBySlug("cinematic")!;
@@ -30,6 +38,7 @@ export default function CinematicPage() {
       <Ledger />
       <Reel />
       <Roles />
+      <Leadership />
       <Coda />
       <VariantSwitcher current="cinematic" tone="ink" />
     </div>
@@ -354,8 +363,9 @@ function RoleBlock({ role, index }: { role: (typeof experience)[number]; index: 
   const y = useTransform(scrollYProgress, [0, 1], ["6%", "-6%"]);
 
   return (
-    <div ref={ref} className="bg-ink py-14">
-      <motion.div style={{ y }} className="grid grid-cols-12 gap-x-8 gap-y-6">
+    <div ref={ref} className="relative overflow-hidden bg-ink py-14">
+      <BrandMark mark={role.mark} opacity={0.12} />
+      <motion.div style={{ y }} className="relative grid grid-cols-12 gap-x-8 gap-y-6">
         <div className="col-span-12 lg:col-span-4">
           <p className="tabular font-mono text-[10px] tracking-[0.18em] uppercase opacity-40">
             {String(index + 1).padStart(2, "0")} / {role.start} &rarr; {role.end}
@@ -388,6 +398,88 @@ function RoleBlock({ role, index }: { role: (typeof experience)[number]; index: 
   );
 }
 
+/* ------------------------------------------------------------------ leadership */
+
+function Leadership() {
+  return (
+    <section className="gutter relative py-[14vh]">
+      <BrandMark mark="stanford" opacity={0.1} />
+      <p className="relative mb-16 font-mono text-[10px] tracking-[0.2em] uppercase opacity-40">
+        Leadership
+      </p>
+
+      <div className="relative grid grid-cols-12 gap-x-8 gap-y-10">
+        <div className="col-span-12 lg:col-span-7">
+          <Reveal>
+            <p className="max-w-[40ch] text-[clamp(1.5rem,3.4vw,2.75rem)] leading-[1.1] font-semibold tracking-[-0.03em] text-balance">
+              {leadership[1].summary}
+            </p>
+          </Reveal>
+          <ul className="mt-10 space-y-4">
+            {(leadership[1].detail ?? []).map((d, i) => (
+              <Reveal as="li" key={i} delay={i * 0.06} y={18}>
+                <span className="block max-w-[66ch] border-l border-paper/20 pl-5 text-[0.9375rem] leading-relaxed opacity-70">
+                  {d}
+                </span>
+              </Reveal>
+            ))}
+          </ul>
+        </div>
+
+        <div className="col-span-12 lg:col-span-4 lg:col-start-9">
+          <ul className="grid grid-cols-2 gap-px bg-paper/15">
+            {(leadership[1].figures ?? []).map((f, i) => (
+              <motion.li
+                key={f.label}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={onceInView}
+                transition={{ ...expo, delay: i * 0.06 }}
+                className="bg-ink p-5"
+              >
+                <span className="tabular block text-[clamp(1.5rem,3.4vw,2.5rem)] leading-none font-semibold tracking-[-0.04em]">
+                  <Counter to={f.value} prefix={f.prefix ?? ""} suffix={f.suffix ?? ""} />
+                </span>
+                <span className="mt-3 block font-mono text-[10px] leading-snug tracking-[0.12em] uppercase opacity-50">
+                  {f.label}
+                </span>
+              </motion.li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <ol className="relative mt-20 space-y-px bg-paper/15">
+        {leadership.map((role) => (
+          <li
+            key={role.id}
+            className="group flex flex-wrap items-baseline gap-x-6 gap-y-2 bg-ink py-5"
+          >
+            <span className="w-full font-mono text-[10px] tracking-[0.16em] uppercase opacity-40 sm:w-[9rem] sm:shrink-0">
+              {role.start} &rarr; {role.end}
+            </span>
+            <span className="flex-1 text-[clamp(1rem,1.8vw,1.25rem)] leading-snug">
+              {role.title}
+              {role.current && (
+                <span className="ml-3 align-middle font-mono text-[10px] tracking-[0.14em] uppercase opacity-45">
+                  Current
+                </span>
+              )}
+            </span>
+            <span className="font-mono text-[10px] tracking-[0.14em] uppercase opacity-40 transition-opacity group-hover:opacity-80">
+              {role.org}
+            </span>
+          </li>
+        ))}
+      </ol>
+
+      <p className="relative mt-8 font-mono text-[10px] tracking-[0.14em] uppercase opacity-40">
+        Also a member of {affiliations.join(", ")}
+      </p>
+    </section>
+  );
+}
+
 /* ------------------------------------------------------------------------ coda */
 
 function Coda() {
@@ -400,20 +492,71 @@ function Coda() {
   return (
     <footer ref={ref} className="relative flex min-h-[110vh] flex-col justify-center overflow-hidden">
       <div className="gutter">
-        <div className="mb-10 grid grid-cols-12 gap-y-6 font-mono text-[10px] tracking-[0.16em] uppercase">
-          <p className="col-span-12 opacity-40 sm:col-span-4">
-            Available for 2027 full-time roles
-          </p>
-          <ul className="col-span-12 space-y-1 sm:col-span-4">
-            {profile.skills.map((g) => (
-              <li key={g.group} className="opacity-70">
-                {g.group}
-              </li>
-            ))}
-          </ul>
-          <p className="col-span-12 opacity-40 sm:col-span-4 sm:text-right">
-            {profile.education.school}, {profile.education.graduation}
-          </p>
+        <div className="mb-16 grid grid-cols-12 gap-x-8 gap-y-10 border-b border-paper/15 pb-16">
+          <div className="col-span-12 md:col-span-4">
+            <p className="font-mono text-[10px] tracking-[0.2em] uppercase opacity-40">
+              Education
+            </p>
+            <p className="mt-4 text-[clamp(1.25rem,2.4vw,1.875rem)] leading-tight font-semibold tracking-[-0.02em]">
+              {profile.education.school}
+            </p>
+            <ul className="mt-3 space-y-0.5 text-sm opacity-80">
+              {profile.education.degrees.map((d) => (
+                <li key={d.label}>
+                  {d.label}
+                  {d.note && <span className="opacity-50"> ({d.note})</span>}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-2 font-mono text-[10px] tracking-[0.14em] uppercase opacity-40">
+              GPA {profile.education.gpa} / Graduating {profile.education.graduation}
+            </p>
+            <p className="mt-6 font-mono text-[10px] leading-relaxed tracking-[0.12em] uppercase opacity-40">
+              {affiliations.join(", ")}
+            </p>
+          </div>
+
+          <div className="col-span-12 md:col-span-4">
+            <p className="font-mono text-[10px] tracking-[0.2em] uppercase opacity-40">
+              Selected coursework
+            </p>
+            <ul className="mt-4 space-y-2">
+              {profile.education.coursework.map((c, i) => (
+                <Reveal as="li" key={c.code} delay={i * 0.03} y={12}>
+                  <span className="flex gap-3 border-t border-paper/15 pt-2 text-[0.875rem] leading-snug">
+                    <span className="tabular w-[6rem] shrink-0 font-mono text-[10px] tracking-[0.08em] uppercase opacity-45">
+                      {c.code}
+                    </span>
+                    <span className="opacity-80">
+                      {c.title}
+                      {c.note && <span className="block opacity-55">{c.note}</span>}
+                    </span>
+                  </span>
+                </Reveal>
+              ))}
+            </ul>
+          </div>
+
+          <div className="col-span-12 md:col-span-3 md:col-start-10">
+            <p className="font-mono text-[10px] tracking-[0.2em] uppercase opacity-40">
+              In progress, {profile.education.inProgressTerm}
+            </p>
+            <ul className="mt-4 space-y-2">
+              {profile.education.inProgress.map((c, i) => (
+                <Reveal as="li" key={c.code} delay={i * 0.03} y={12}>
+                  <span className="block border-t border-paper/15 pt-2 text-[0.875rem] leading-snug opacity-80">
+                    {c.title}
+                    <span className="tabular mt-0.5 block font-mono text-[10px] tracking-[0.08em] uppercase opacity-45">
+                      {c.code}
+                    </span>
+                  </span>
+                </Reveal>
+              ))}
+            </ul>
+            <p className="mt-8 font-mono text-[10px] tracking-[0.14em] uppercase opacity-40">
+              Available for 2027 full-time roles
+            </p>
+          </div>
         </div>
 
         <motion.a

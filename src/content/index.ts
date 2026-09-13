@@ -1,6 +1,8 @@
 export { profile } from "./profile";
 export { experience } from "./experience";
 export type { Role } from "./experience";
+export { leadership, affiliations } from "./leadership";
+export type { LeadershipRole } from "./leadership";
 export { projects, featuredProjects } from "./projects";
 export type { Project, ProjectLink } from "./projects";
 export { variants, variantBySlug } from "./variants";

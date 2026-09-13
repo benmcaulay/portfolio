@@ -44,14 +44,19 @@ export const projects: Project[] = [
     ],
     facts: [
       { k: "Discovery latency", v: "50% reduction" },
-      { k: "Model size", v: "8B parameters, quantized" },
+      { k: "Model size", v: "8B to 24B, quantized" },
       { k: "Runtime", v: "Under two minutes" },
       { k: "Network egress", v: "None" },
       { k: "Inputs", v: "PDF, scanned PDF, DOCX, EML, XLSX" },
+      { k: "Status", v: "In development, seeking clients" },
     ],
     stack: ["Ollama", "Tesseract", "Poppler", "TypeScript", "FastAPI", "SQL", "Supabase"],
     links: [
-      { label: "Source (course version)", href: "https://github.com/benmcaulay/cs153project", kind: "source" },
+      {
+        label: "Source (course version)",
+        href: "https://github.com/benmcaulay/cs153project",
+        kind: "source",
+      },
     ],
     privateSource: true,
     art: "provenance",

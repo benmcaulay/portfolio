@@ -9,7 +9,14 @@ import {
   useVelocity,
 } from "motion/react";
 import { useRef } from "react";
-import { experience, featuredProjects, profile, variantBySlug } from "@/content";
+import {
+  affiliations,
+  experience,
+  featuredProjects,
+  leadership,
+  profile,
+  variantBySlug,
+} from "@/content";
 import SmoothScroll from "@/components/SmoothScroll";
 import VariantSwitcher from "@/components/chrome/VariantSwitcher";
 import Marquee from "@/components/motion/Marquee";
@@ -17,6 +24,7 @@ import CharReveal from "@/components/motion/CharReveal";
 import Counter from "@/components/motion/Counter";
 import Reveal from "@/components/motion/Reveal";
 import ProjectArt from "@/components/ProjectArt";
+import BrandMark from "@/components/BrandMark";
 import { expo, onceInView } from "@/lib/motion";
 
 const meta = variantBySlug("kinetic")!;
@@ -31,6 +39,7 @@ export default function KineticPage() {
       <NumbersBand />
       <Wordmarks />
       <RolesBand />
+      <LeadershipBand />
       <SkillsBand />
       <Sendoff />
       <VariantSwitcher current="kinetic" tone="paper" />
@@ -371,13 +380,76 @@ function RoleRow({ role, index }: { role: (typeof experience)[number]; index: nu
   );
 }
 
+/* -------------------------------------------------------------- leadership band */
+
+function LeadershipBand() {
+  const lantana = leadership.find((r) => r.id === "lantana")!;
+
+  return (
+    <section className="on-ink relative overflow-hidden bg-ink py-[14vh] text-paper">
+      <div className="gutter">
+        <p className="mb-10 font-mono text-[10px] tracking-[0.2em] uppercase opacity-45">
+          Leadership
+        </p>
+        <h2 className="max-w-[24ch] font-kinetic text-[clamp(1.75rem,5.4vw,4.25rem)] leading-[1] uppercase">
+          <WordRise text={lantana.summary} />
+        </h2>
+
+        <ul className="mt-16 grid grid-cols-2 gap-x-8 gap-y-10 md:grid-cols-4">
+          {(lantana.figures ?? []).map((f, i) => (
+            <Reveal as="li" key={f.label} delay={i * 0.06} y={20}>
+              <span className="block border-t border-paper/25 pt-4">
+                <span className="tabular block font-kinetic text-[clamp(2.25rem,6vw,4.5rem)] leading-[0.86]">
+                  <Counter to={f.value} prefix={f.prefix ?? ""} suffix={f.suffix ?? ""} />
+                </span>
+                <span className="mt-3 block font-mono text-[10px] leading-snug tracking-[0.12em] uppercase opacity-50">
+                  {f.label}
+                </span>
+              </span>
+            </Reveal>
+          ))}
+        </ul>
+      </div>
+
+      <div className="mt-[12vh]">
+        <Belt
+          text={leadership.map((r) => r.title)}
+          tone="ink"
+          velocity={-64}
+        />
+      </div>
+
+      <ol className="gutter mt-[8vh]">
+        {leadership.map((role, i) => (
+          <li key={role.id} className="border-t border-paper/25 last:border-b">
+            <Reveal delay={i * 0.03} y={14}>
+              <div className="flex flex-wrap items-baseline gap-x-6 gap-y-1 py-5">
+                <span className="tabular w-full font-mono text-[10px] tracking-[0.14em] uppercase opacity-45 sm:w-[9rem] sm:shrink-0">
+                  {role.start} &rarr; {role.end}
+                </span>
+                <span className="flex-1 font-kinetic text-[clamp(1.125rem,2.6vw,1.875rem)] leading-tight uppercase">
+                  {role.title}
+                </span>
+                <span className="font-mono text-[10px] tracking-[0.12em] uppercase opacity-45">
+                  {role.current ? "Current" : role.org}
+                </span>
+              </div>
+            </Reveal>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
 /* ----------------------------------------------------------------- skills band */
 
 function SkillsBand() {
   const all = profile.skills.flatMap((g) => g.items);
   return (
-    <section className="bg-paper pb-[10vh]">
+    <section className="relative overflow-hidden bg-paper pb-[10vh]">
       <Belt text={all} velocity={-90} />
+      <BrandMark mark="stanford" anchor="right" opacity={0.06} />
       <div className="gutter mt-[10vh] grid grid-cols-12 gap-x-8 gap-y-10">
         <div className="col-span-12 md:col-span-5">
           <p className="font-mono text-[10px] tracking-[0.2em] uppercase opacity-45">Education</p>
@@ -391,19 +463,47 @@ function SkillsBand() {
             GPA {profile.education.gpa} / Graduating {profile.education.graduation}
           </p>
         </div>
-        <div className="col-span-12 md:col-span-6 md:col-start-7">
+        <div className="col-span-12 md:col-span-3 md:col-start-7">
           <p className="font-mono text-[10px] tracking-[0.2em] uppercase opacity-45">
-            Outside the coursework
+            Selected coursework
           </p>
-          <ul className="mt-5 space-y-3">
-            {profile.education.involvement.map((it, i) => (
-              <Reveal as="li" key={it} delay={i * 0.05} y={16}>
-                <span className="block border-t border-ink/15 pt-3 text-[1.0625rem] leading-snug">
-                  {it}
+          <ul className="mt-5 space-y-2.5">
+            {profile.education.coursework.map((c, i) => (
+              <Reveal as="li" key={c.code} delay={i * 0.04} y={14}>
+                <span className="block border-t border-ink/15 pt-2.5 text-[0.9375rem] leading-snug">
+                  {c.title}
+                  <span className="tabular ml-2 font-mono text-[10px] tracking-[0.08em] uppercase opacity-45">
+                    {c.code}
+                  </span>
+                  {c.note && (
+                    <span className="block font-mono text-[10px] tracking-[0.08em] uppercase opacity-45">
+                      {c.note}
+                    </span>
+                  )}
                 </span>
               </Reveal>
             ))}
           </ul>
+        </div>
+        <div className="col-span-12 md:col-span-3 md:col-start-10">
+          <p className="font-mono text-[10px] tracking-[0.2em] uppercase opacity-45">
+            In progress, {profile.education.inProgressTerm}
+          </p>
+          <ul className="mt-5 space-y-2.5">
+            {profile.education.inProgress.map((c, i) => (
+              <Reveal as="li" key={c.code} delay={i * 0.04} y={14}>
+                <span className="block border-t border-ink/15 pt-2.5 text-[0.9375rem] leading-snug">
+                  {c.title}
+                  <span className="tabular ml-2 font-mono text-[10px] tracking-[0.08em] uppercase opacity-45">
+                    {c.code}
+                  </span>
+                </span>
+              </Reveal>
+            ))}
+          </ul>
+          <p className="mt-8 border-t border-ink/15 pt-3 font-mono text-[10px] leading-relaxed tracking-[0.1em] uppercase opacity-45">
+            {affiliations.join(", ")}
+          </p>
         </div>
       </div>
     </section>
