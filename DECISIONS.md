@@ -23,12 +23,28 @@ rename plus a 200, and the health check passed happily against a site with no
 connection to this repo. **A 200 proves something is there, not that it is
 yours.** Verify page content before trusting any URL you inferred.
 
-**2026-09-19 · deploy · This project has no Vercel deployment to monitor.**
-Its Vercel project is absent from both the team and the personal scope, so
-`startup-rig` deliberately carries a blank `monitor_url` rather than a guess.
-Blank means "skip the check"; a guessed URL means a false green.
+**2026-09-19 · deploy · The canonical domain this code declares,
+`bennettmcaulay.com`, is not registered.** `metadataBase` in
+`src/app/layout.tsx`, `base` in `src/app/sitemap.ts` and the sitemap URL in
+`src/app/robots.ts` all point at it, and `whois` returns "No match for domain
+BENNETTMCAULAY.COM" -- it does not resolve, so every canonical URL, the
+sitemap and the OG metadata currently reference a host that does not exist.
+Register it before deploying, or change the three constants; shipping as-is
+means search engines are handed a dead canonical.
 
-**2026-09-19 · history · This repo is unrelated to the local
-`benmcaulay-portfolio` clone.** They share no merge-base -- 4 commits here
-against 33 there -- so despite the naming this is not a rename of it. See that
-repo's own `DECISIONS.md`: its remote no longer exists.
+**2026-09-19 · deploy · Nothing is deployed anywhere findable.** No Vercel
+project in either the team or the personal scope, no GitHub Pages, no
+homepage field on the repo. `startup-rig` therefore carries a blank
+`monitor_url` on purpose: blank means "skip the check", whereas a guessed URL
+means a false green.
+
+**2026-09-19 · naming · This is the live repo. `benmcaulay-portfolio` is
+retired.** Confirmed by Ben on 2026-09-19. Note that `startup-rig` still
+tracks this project under the stale key `benmcaulay-portfolio`, because 841
+rows of history key off that name; the `git_remote` there is correct.
+
+**2026-09-19 · history · This repo is unrelated to `benmcaulay-portfolio`;
+it replaced it rather than being renamed from it.** They share no merge-base
+-- 4 commits here against 33 there -- which is why the old remote returns
+"Repository not found" instead of redirecting. Any tooling that assumed a
+GitHub rename redirect was wrong about this pair.
